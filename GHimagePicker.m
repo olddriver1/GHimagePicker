@@ -92,9 +92,9 @@ static GHimagePicker *ghImagePickerInstance = nil;
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    if (_finishAction) {
+    /*if (_finishAction) {
         _finishAction(nil);
-    }
+    }*/
     
     [picker dismissViewControllerAnimated:YES completion:nil];
     
