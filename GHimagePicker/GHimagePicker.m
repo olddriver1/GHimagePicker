@@ -51,10 +51,11 @@ static GHimagePicker *ghImagePickerInstance = nil;
                                    otherButtonTitles:@"拍照",@"从相册选择", nil];
     }
     
+    UIView *window = [UIApplication sharedApplication].keyWindow;
     [sheet showInView:viewController.view];
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex{
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
     NSString *title = [actionSheet buttonTitleAtIndex:buttonIndex];
     if ([title isEqualToString:@"拍照"]) {
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
@@ -73,8 +74,7 @@ static GHimagePicker *ghImagePickerInstance = nil;
     }
 }
 
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-}
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {}
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     UIImage *image = info[UIImagePickerControllerEditedImage];
@@ -82,23 +82,36 @@ static GHimagePicker *ghImagePickerInstance = nil;
         image = info[UIImagePickerControllerOriginalImage];
     }
     
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    
     if (_finishAction) {
         _finishAction(image);
     }
+    
+    ghImagePickerInstance = nil;
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     
     [picker dismissViewControllerAnimated:YES completion:nil];
     
     ghImagePickerInstance = nil;
 }
 
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    /*if (_finishAction) {
-        _finishAction(nil);
-    }*/
+#pragma mark -- 添加水印
+- (UIImage *)addImage:(UIImage *)oncImageName withImage:(UIImage *)watermarkImageName {
+    UIGraphicsBeginImageContextWithOptions(oncImageName.size ,NO, 0.0);
     
-    [picker dismissViewControllerAnimated:YES completion:nil];
+    [oncImageName drawInRect:CGRectMake(0, 0, oncImageName.size.width, oncImageName.size.height)];
     
-    ghImagePickerInstance = nil;
+    [watermarkImageName drawInRect:CGRectMake(0, 0, oncImageName.size.width, oncImageName.size.height * 1)];
+    // 如果要多个位置显示，继续drawInRect就行
+    // [maskImage drawInRect:CGRectMake(0, useImage.size.height/2, useImage.size.width, useImage.size.height/2)];
+    UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    
+    return resultingImage;
 }
 
 @end
